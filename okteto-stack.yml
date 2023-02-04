@@ -8,3 +8,10 @@ services:
       - REDIS_URI=${REDIS_URI}
     ports:
       - 8080
+    volumes:
+      - 'nodequery:/data/python'
+
+volumes:
+  nodequery:
+    driver_opts:
+      size: 128Mi

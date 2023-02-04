@@ -1,8 +1,8 @@
+import asyncio
 import json
 from asyncio.log import logger
-from pathlib import Path
 
-from sanic import Blueprint, Request, html, text
+from sanic import Blueprint, Request
 
 from utils.common import serializer, md5, get_bj_date
 from utils.db import DB
@@ -37,10 +37,14 @@ async def agent(request: Request):
     return f"curl {request.url_for(f'script.install_sh', aid=_id)} | bash"
 
 
-@bp_api.websocket('/agent')
-async def agent(request: Request, ws):
+@bp_api.websocket('/agent/<aid:str>', name='agent')
+async def agent(request: Request, ws, aid):
     while True:
         data = await ws.recv()
+        if not data:
+            await asyncio.sleep(1)
+            continue
+
         logger.info(data)
         if 'close' in data:
             break

@@ -28,13 +28,16 @@ fi
 mkdir -p /etc/nodequery
 
 # Download agent
-echo -e "|   Downloading nq-agent.sh to /etc/nodequery\n|\n|   + $(wget -nv -o /dev/stdout -O /etc/nodequery/nq-agent.sh --no-check-certificate %agent_url%)"
+echo -e "|   Downloading nq-agent.py to /etc/nodequery\n|\n|   + $(wget -nv -o /dev/stdout -O /etc/nodequery/nq-agent.py --no-check-certificate %agent_py_url%)"
+
+echo -e "|   Downloading nq-agent.sh to /etc/nodequery\n|\n|   + $(wget -nv -o /dev/stdout -O /etc/nodequery/nq-agent.sh --no-check-certificate %agent_sh_url%)"
 
 if [ -f /etc/nodequery/nq-agent.sh ]
 then
 
 	chmod +x /etc/nodequery/nq-agent.sh
-	nohup /etc/nq-agent.sh >/dev/null 2>&1 &
+	chmod +x /etc/nodequery/nq-agent.py
+	nohup /etc/nodequery/nq-agent.py >/dev/null 2>&1 &
 
 	# Show success
 	echo -e "|\n|   Success: The NodeQuery agent has been installed\n|"

