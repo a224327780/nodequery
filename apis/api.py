@@ -1,7 +1,8 @@
 import json
 from asyncio.log import logger
+from pathlib import Path
 
-from sanic import Blueprint, Request, html
+from sanic import Blueprint, Request, html, text
 
 from utils.common import serializer, md5, get_bj_date
 from utils.db import DB
@@ -9,7 +10,7 @@ from utils.db import DB
 bp_api = Blueprint('api', url_prefix='api')
 
 
-@bp_api.post('/agent.json')
+@bp_api.post('/agent.json', name='agent.json')
 @serializer()
 async def agent(request: Request):
     agent_name = request.form.get('agent_name')
@@ -32,8 +33,8 @@ async def agent(request: Request):
     data = await col.find_one({'_id': _id})
     if not data:
         data = {'name': agent_name, '_id': _id, 'create_date': get_bj_date()}
-        await col.insert_on(data)
-    return data
+        await col.insert_one(data)
+    return f"curl {request.url_for(f'script.install_sh', aid=_id)} | bash"
 
 
 @bp_api.websocket('/agent')
@@ -41,7 +42,6 @@ async def agent(request: Request, ws):
     while True:
         data = await ws.recv()
         logger.info(data)
-        print(data)
         if 'close' in data:
             break
         await ws.send(data)

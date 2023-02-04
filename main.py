@@ -5,7 +5,9 @@ from sanic import Sanic
 from sanic import json as json_response
 from sanic.log import logger
 
-from apis.index import bp_api
+from apis.home import bp_home
+from apis.api import bp_api
+from apis.script import bp_script
 from utils import config
 from utils.common import fail, success
 from utils.db import DB
@@ -15,7 +17,10 @@ app = Sanic('nodequery', log_config=DEFAULT_LOGGING)
 app.config.update_config(config)
 
 app.static('/favicon.ico', 'static/favicon.png')
+
 app.blueprint(bp_api)
+app.blueprint(bp_script)
+app.blueprint(bp_home)
 
 
 @app.middleware('response')

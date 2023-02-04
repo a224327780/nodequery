@@ -7,7 +7,7 @@ from sanic import HTTPResponse, Request, response
 from sanic.response import ResponseStream
 
 
-def get_bj_date(add_seconds=None):
+def get_bj_date(add_seconds=None, fmt='%Y-%m-%d %H:%M:%S'):
     sh_tz = timezone(
         timedelta(hours=8),
         name='Asia/Shanghai',
@@ -16,7 +16,12 @@ def get_bj_date(add_seconds=None):
     bj_now = utc_dt.astimezone(sh_tz)
     if add_seconds:
         bj_now += timedelta(seconds=add_seconds)
-    return bj_now.strftime('%Y-%m-%d %H:%M:%S')
+    return bj_now.strftime(fmt)
+
+
+def get_utc_date():
+    utc_dt = datetime.utcnow().replace(tzinfo=timezone.utc)
+    return utc_dt.strftime('%Y-%m-%d %H:%M:%S')
 
 
 def md5(string: str):
