@@ -2,7 +2,7 @@ services:
   nodequery:
     public: true
     image: ghcr.io/a224327780/nodequery
-    replicas: 1
+    replicas: 2
     environment:
       - MONGO_URI=${MONGO_URI}
       - REDIS_URI=${REDIS_URI}
