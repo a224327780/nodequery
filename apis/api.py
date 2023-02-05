@@ -1,4 +1,3 @@
-import asyncio
 import json
 from urllib import parse
 
@@ -8,6 +7,16 @@ from utils.common import serializer, md5, get_bj_date
 from utils.db import DB
 
 bp_api = Blueprint('api', url_prefix='api')
+
+
+@bp_api.get('/agent.list', name='agent_list')
+@serializer()
+async def agent_list(request: Request):
+    data = []
+    col = DB.get_col()
+    async for item in col.find():
+        data.append(item)
+    return data
 
 
 @bp_api.post('/agent.add')
