@@ -23,7 +23,7 @@ async def agent(request: Request):
     return f"curl {request.url_for(f'script.install_sh', aid=_id)} | bash"
 
 
-@bp_api.websocket('/agent/<aid:str>', name='agent')
+@bp_api.websocket('/agent/<aid:str>', name='agent_data')
 async def agent(request: Request, ws, aid):
     # request.app.add_task(ws.keepalive_ping(), name="stream_keepalive")
     while True:
@@ -35,6 +35,7 @@ async def agent(request: Request, ws, aid):
         col = DB.get_col()
         if 'uptime=' in data:
             data = dict(parse.parse_qsl(data))
+            data['update_date'] = get_bj_date()
             await col.update_one({'_id': aid}, {'$set': data})
         if 'get' in 'data':
             data = await col.find_one({'_id': aid})

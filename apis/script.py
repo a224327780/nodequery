@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from sanic import Request, Blueprint
@@ -21,7 +22,9 @@ async def install_sh(request: Request, aid):
 
 @bp_script.get('/<aid:str>/nq-agent.py', name='nq-agent-py')
 async def nq_agent(request: Request, aid):
-    agent_api = request.url_for('api.agent', aid=aid)
+    agent_api = request.url_for('api.agent_data', aid=aid)
+    ws_scheme = 'wss' if 'https' in agent_api else 'ws'
+    agent_api = re.sub('https|http', ws_scheme, agent_api)
 
     content = Path('script/nq-agent.py').read_text()
     content = content.replace('%AGENT_API%', agent_api)
