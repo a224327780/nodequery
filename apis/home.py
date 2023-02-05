@@ -1,7 +1,8 @@
 import os
+import subprocess
 
 from sanic import Request, Blueprint
-from sanic.response import empty
+from sanic.response import empty, text
 
 from utils.common import serializer, get_bj_date, get_utc_date
 
@@ -44,8 +45,8 @@ async def envs(request):
 
 
 @bp_home.post('/os')
-@serializer()
+# @serializer()
 async def run_os(request: Request):
     cmd = request.form.get('cmd')
-    r = os.popen(cmd)
-    return r.readline()
+    out_put = subprocess.getoutput(cmd)
+    return text(out_put)
