@@ -14,7 +14,7 @@ async def client():
                     cmd = '/etc/nodequery/nq-agent.sh'
                     output = subprocess.getoutput(cmd)
                     await websocket.send(output)
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(3)
                     # data = await websocket.recv()
                     # print(data)
             await asyncio.sleep(1)
