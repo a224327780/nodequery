@@ -110,7 +110,7 @@ fi
 # IP addresses and network usage
 ipv4=$(prep "$(ip addr show $nic | grep 'inet ' | awk '{ print $2 }' | awk -F\/ '{ print $1 }' | grep -v '^127' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
 #ipv4=$(curl -s https://api.ipify.org/)
-dhclient -6 $nic
+# dhclient -6 $nic
 ipv6=$(prep "$(ip addr show $nic | grep 'inet6 ' | awk '{ print $2 }' | awk -F\/ '{ print $1 }' | grep -v '^::' | grep -v '^0000:' | grep -v '^fe80:' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
 
 if [ -d /sys/class/net/$nic/statistics ]; then
@@ -167,3 +167,5 @@ load_io=$(prep $(num "$load_io"))
 # Build data for post
 data_post="uptime=$uptime&sessions=$sessions=$processes_array&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
 echo $data_post
+
+exit 1
