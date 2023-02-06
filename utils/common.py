@@ -1,4 +1,5 @@
 import hashlib
+import math
 from functools import wraps
 from inspect import isawaitable
 from datetime import timezone, timedelta, datetime
@@ -29,6 +30,41 @@ def md5(string: str):
     m.update(string.encode('utf-8'))
     _md5 = m.hexdigest()
     return _md5[8:-8].upper()
+
+
+def is_online(last_date):
+    return diff_date_seconds(last_date) < 60
+
+
+def diff_date_seconds(last_date):
+    a = datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S')
+    b = datetime.now()
+    return (b - a).seconds
+
+
+def format_date(last_date):
+    s = diff_date_seconds(last_date)
+    date_name = ['seconds ago', 'minutes ago', 'hours ago']
+    i = int(math.floor(math.log(s, 60)))
+    if i > len(date_name):
+        return last_date
+
+    p = math.pow(60, i)
+    return f'{int(s / p)} {date_name[i]}'
+
+
+def progress(a, b, c=100):
+    n = round((float(a) / float(b)) * c, 2)
+    return 100 if n > 100 else n
+
+
+def format_size(size_bytes):
+    if size_bytes == 0:
+        return "0B"
+    size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
+    i = int(math.floor(math.log(size_bytes, 1024)))
+    p = math.pow(1024, i)
+    return f'{round(size_bytes / p, 2)} {size_name[i]}'
 
 
 def success(data=None, message=''):

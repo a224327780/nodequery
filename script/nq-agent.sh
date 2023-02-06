@@ -1,18 +1,4 @@
 #!/bin/bash
-#
-# NodeQuery Agent
-#
-# @version		0.7.7
-# @date			2014-07-30
-# @copyright	(c) 2014 http://nodequery.com
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
 
 # Set environment
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -45,13 +31,6 @@ uptime=$(prep $(int "$(cat /proc/uptime | awk '{ print $1 }')"))
 
 # Login session count
 sessions=$(prep "$(who | wc -l)")
-
-# Process count
-processes=$(prep "$(ps axc | wc -l)")
-
-# Process array
-processes_array="$(ps axc -o uname:12,pcpu,rss,cmd --sort=-pcpu,-rss --noheaders --width 120)"
-processes_array="$(echo "$processes_array" | grep -v " ps$" | sed 's/ \+ / /g' | sed '/^$/d' | tr "\n" ";")"
 
 # File descriptors
 file_handles=$(prep $(num "$(cat /proc/sys/fs/file-nr | awk '{ print $1 }')"))
@@ -121,16 +100,6 @@ swap_total=$(($swap_total * 1024))
 disk_total=$(prep $(num "$(($(df -P -B 1 | grep '^/' | awk '{ print $2 }' | sed -e :a -e '$!N;s/\n/+/;ta')))"))
 disk_usage=$(prep $(num "$(($(df -P -B 1 | grep '^/' | awk '{ print $3 }' | sed -e :a -e '$!N;s/\n/+/;ta')))"))
 
-# Disk array
-disk_array=$(prep "$(df -P -B 1 | grep '^/' | awk '{ print $1" "$2" "$3";" }' | sed -e :a -e '$!N;s/\n/ /;ta' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
-
-# Active connections
-if [ -n "$(command -v ss)" ]; then
-  connections=$(prep $(num "$(ss -tun | tail -n +2 | wc -l)"))
-else
-  connections=$(prep $(num "$(netstat -tun | tail -n +3 | wc -l)"))
-fi
-
 # Network interface
 nic=$(prep "$(ip route get 1.1.1.1 | grep dev | awk -F'dev' '{ print $2 }' | awk '{ print $1 }')")
 
@@ -196,5 +165,5 @@ load_cpu=$(prep $(num "$load_cpu"))
 load_io=$(prep $(num "$load_io"))
 
 # Build data for post
-data_post="uptime=$uptime&sessions=$sessions&processes=$processes&processes_array=$processes_array&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_array=$disk_array&disk_total=$disk_total&disk_usage=$disk_usage&connections=$connections&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
+data_post="uptime=$uptime&sessions=$sessions=$processes_array&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
 echo $data_post
