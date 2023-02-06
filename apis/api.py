@@ -60,7 +60,8 @@ async def agent(request: Request, ws, aid):
 def format_item(item):
     item['ram'] = math.ceil(progress(item['ram_usage'], item['ram_total']))
     item['disk'] = math.ceil(progress(item['disk_usage'], item['disk_total']))
-    item['load'] = math.ceil(progress(item['load'].split(' ')[0], item['cpu_cores']))
+    item['load'] = int(item['load_cpu'])
+    # item['load'] = math.ceil(progress(item['load'].split(' ')[0], item['cpu_cores']))
     item['is_online'] = is_online(item['update_date'])
     item['date'] = format_date(item['update_date'])
     item['rx_gap'] = format_size(int(item['rx_gap']))

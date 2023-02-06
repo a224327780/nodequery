@@ -108,8 +108,7 @@ if [ -z $nic ]; then
 fi
 
 # IP addresses and network usage
-ipv4=$(prep "$(ip addr show $nic | grep 'inet ' | awk '{ print $2 }' | awk -F\/ '{ print $1 }' | grep -v '^127' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
-#ipv4=$(curl -s https://api.ipify.org/)
+#ipv4=$(prep "$(ip addr show $nic | grep 'inet ' | awk '{ print $2 }' | awk -F\/ '{ print $1 }' | grep -v '^127' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
 # dhclient -6 $nic
 ipv6=$(prep "$(ip addr show $nic | grep 'inet6 ' | awk '{ print $2 }' | awk -F\/ '{ print $1 }' | grep -v '^::' | grep -v '^0000:' | grep -v '^fe80:' | awk '{ print $0 } END { if (!NR) print "N/A" }')")
 
@@ -137,6 +136,7 @@ if [ -e /etc/nodequery/nq-data.log ]; then
   cpu_gap=$(($cpu - ${data[1]}))
   io_gap=$(($io - ${data[2]}))
   idle_gap=$(($idle - ${data[3]}))
+  ipv4=${data[6]}
 
   if [[ $cpu_gap > "0" ]]; then
     load_cpu=$(((1000 * ($cpu_gap - $idle_gap) / $cpu_gap + 5) / 10))
@@ -153,10 +153,12 @@ if [ -e /etc/nodequery/nq-data.log ]; then
   if [[ $tx > ${data[5]} ]]; then
     tx_gap=$(($tx - ${data[5]}))
   fi
+else
+  ipv4=$(curl -s https://api.ipify.org/)
 fi
 
 # System load cache
-echo "$time $cpu $io $idle $rx $tx" >/etc/nodequery/nq-data.log
+echo "$time $cpu $io $idle $rx $tx $ipv4" >/etc/nodequery/nq-data.log
 
 # Prepare load variables
 rx_gap=$(prep $(num "$rx_gap"))
@@ -165,7 +167,7 @@ load_cpu=$(prep $(num "$load_cpu"))
 load_io=$(prep $(num "$load_io"))
 
 # Build data for post
-data_post="uptime=$uptime&sessions=$sessions=$processes_array&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
+data_post="uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
 echo $data_post
 
 exit 1
