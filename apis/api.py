@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 from urllib import parse
@@ -10,15 +11,17 @@ from utils.db import DB
 bp_api = Blueprint('api', url_prefix='api')
 
 
-@bp_api.get('/agent.list', name='agent_list')
-@serializer()
-async def agent_list(request: Request):
-    data = []
+@bp_api.websocket('/agent.list', name='agent_list')
+async def agent_list(request: Request, ws):
     col = DB.get_col()
-    async for item in col.find():
-        item = format_item(item)
-        data.append(item)
-    return data
+    while True:
+        data = []
+        async for item in col.find():
+            item = format_item(item)
+            data.append(item)
+        data = json.dumps(data)
+        await ws.send(data)
+        await asyncio.sleep(2)
 
 
 @bp_api.post('/agent.add')
@@ -36,25 +39,22 @@ async def agent(request: Request):
 
 @bp_api.websocket('/agent/<aid:str>', name='agent_data')
 async def agent(request: Request, ws, aid):
-    # request.app.add_task(ws.keepalive_ping(), name="stream_keepalive")
     while True:
-        data = await ws.recv()
-        if 'close' in data:
+        message = await ws.recv()
+        if not message:
+            break
+
+        if 'close' in message:
             await ws.close()
             break
 
-        col = DB.get_col()
-        if 'uptime=' in data:
-            data = dict(parse.parse_qsl(data))
+        if 'uptime=' in message:
+            col = DB.get_col()
+            data = dict(parse.parse_qsl(message))
             data['update_date'] = get_bj_date()
             await col.update_one({'_id': aid}, {'$set': data})
-        if 'uid' in 'data':
-            data = await col.find_one({'_id': aid})
-            data = format_item(data)
 
-        if type(data) != str:
-            data = json.dumps(data)
-        await ws.send(data)
+        await ws.send(message)
 
 
 def format_item(item):
