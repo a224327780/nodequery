@@ -44,12 +44,15 @@ def diff_date_seconds(last_date):
 
 def format_date(last_date):
     s = diff_date_seconds(last_date)
-    if s < 60:
-        return f'{s} seconds ago'
-    if s < 120:
-        return f'a minute ago'
+    if s <= 0:
+        s = 1
+    date_name = ['seconds ago', 'minutes ago', 'hours ago']
+    i = int(math.floor(math.log(s, 60)))
+    if i > len(date_name):
+        return last_date
 
-    return f'{s // 60} minutes ago'
+    p = math.pow(60, i)
+    return f'{int(s / p)} {date_name[i]}'
 
 
 def progress(a, b, c=100):
