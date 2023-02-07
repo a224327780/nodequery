@@ -4,6 +4,7 @@ import math
 from urllib import parse
 
 from sanic import Blueprint, Request
+from sanic.log import logger
 
 from utils.common import serializer, md5, get_bj_date, progress, is_online, format_size, format_date
 from utils.db import DB
@@ -71,7 +72,8 @@ def format_item(item):
     item['is_online'] = is_online(item['update_date'])
     try:
         item['date'] = format_date(item['update_date'])
-    except:
+    except Exception as e:
+        logger.error(f"{item['update_date']}: {e}")
         item['date'] = item['update_date']
     item['online_day'] = int(int(item['uptime']) / (3600 * 24))
     item['rx_gap'] = format_size(int(item['rx_gap']))
