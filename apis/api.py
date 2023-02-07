@@ -44,7 +44,7 @@ async def agent(request: Request):
 async def agent(request: Request, ws, aid):
     try:
         while True:
-            message = await ws.recv(10.0)
+            message = await ws.recv()
             if not message:
                 break
 
@@ -69,7 +69,10 @@ def format_item(item):
     item['load'] = int(item['load_cpu'])
     # item['load'] = math.ceil(progress(item['load'].split(' ')[0], item['cpu_cores']))
     item['is_online'] = is_online(item['update_date'])
-    item['date'] = item['update_date']
+    try:
+        item['date'] = format_date(item['update_date'])
+    except:
+        item['date'] = item['update_date']
     item['online_day'] = int(int(item['uptime']) / (3600 * 24))
     item['rx_gap'] = format_size(int(item['rx_gap']))
     item['tx_gap'] = format_size(int(item['tx_gap']))
