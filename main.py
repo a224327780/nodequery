@@ -1,13 +1,12 @@
 import os
 from traceback import format_exc
-from urllib import parse
 
 from sanic import Sanic
 from sanic import json as json_response
 from sanic.log import logger
 
-from apis.home import bp_home
 from apis.api import bp_api
+from apis.home import bp_home
 from apis.script import bp_script
 from utils import config
 from utils.common import fail, success
