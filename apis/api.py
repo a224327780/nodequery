@@ -23,7 +23,6 @@ async def agent_list(request: Request, ws):
                 data.append(item)
             data = json.dumps(data)
             await ws.send(data)
-            await ws.recv()
             await asyncio.sleep(2)
     finally:
         await ws.close()
