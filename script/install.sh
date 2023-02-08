@@ -12,18 +12,6 @@ if [ $(id -u) != "0" ]; then
   exit 1
 fi
 
-apt update
-if ! command -v python3 >/dev/null 2>&1; then
-  apt install python3 python3-distutils -y
-fi
-
-if ! command -v pip3 >/dev/null 2>&1; then
-  curl -o get-pip.py https://bootstrap.pypa.io/get-pip.py
-  python3 get-pip.py && rm -f get-pip.py
-fi
-
-pip3 install websockets
-
 # Attempt to delete previous agent
 if [ -f /etc/nodequery/nq-agent.sh ]; then
   pid=$(ps -ef | grep -i 'nq-agent' | grep -v grep | awk '{print $2}')
@@ -37,15 +25,12 @@ fi
 mkdir -p /etc/nodequery
 
 # Download agent
-echo -e "|   Downloading nq-agent.py to /etc/nodequery\n|\n|   + $(wget -nv -o /dev/stdout -O /etc/nodequery/nq-agent.py --no-check-certificate %agent_py_url%)"
-
 echo -e "|   Downloading nq-agent.sh to /etc/nodequery\n|\n|   + $(wget -nv -o /dev/stdout -O /etc/nodequery/nq-agent.sh --no-check-certificate %agent_sh_url%)"
 
 if [ -f /etc/nodequery/nq-agent.sh ]; then
 
   chmod +x /etc/nodequery/nq-agent.sh
-  chmod +x /etc/nodequery/nq-agent.py
-  nohup /etc/nodequery/nq-agent.py >/dev/null 2>&1 &
+  nohup /etc/nodequery/nq-agent.sh >/dev/null 2>&1 &
 
   # Show success
   echo -e "|\n|   Success: The NodeQuery agent has been installed\n|"
