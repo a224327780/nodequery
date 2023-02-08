@@ -37,8 +37,9 @@ async def agent(request: Request):
 
 
 @bp_api.post('/agent/<aid:str>', name='agent_data')
+@serializer()
 async def agent(request: Request, aid):
-    message = request.body
+    message = request.body.decode('utf-8')
     col = DB.get_col()
     data = dict(parse.parse_qsl(message))
     data['update_date'] = get_bj_date()
