@@ -2,7 +2,7 @@ name: Okteto
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ master ]
     paths-ignore:
       - '.github/workflows/deploy.yml'
       - 'docker-compse.yaml'
@@ -53,4 +53,4 @@ jobs:
         uses: okteto/pipeline@latest
         with:
           name: nodequery
-          timeout: 8m
+          timeout: 5m

@@ -2,7 +2,7 @@ services:
   nodequery:
     build:
       context: .
-    scale: 1
+    scale: 2
     environment:
       - MONGO_URI=${MONGO_URI}
       - REDIS_URI=${REDIS_URI}
