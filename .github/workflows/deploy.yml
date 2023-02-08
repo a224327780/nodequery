@@ -5,7 +5,7 @@ on:
     branches: [ master ]
     paths-ignore:
       - '.github/workflows/deploy.yml'
-      - 'docker-compse.yaml'
+      - 'docker-compose.yaml'
       - 'okteto-stack.yml'
 
 jobs:
