@@ -1,8 +1,10 @@
 services:
+  labels:
+    app: nodequery
   nodequery:
     build:
       context: .
-    scale: 2
+    scale: 1
     environment:
       - MONGO_URI=${MONGO_URI}
       - REDIS_URI=${REDIS_URI}

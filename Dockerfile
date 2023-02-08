@@ -1,9 +1,9 @@
-FROM python:3.8-bullseye
+FROM ghcr.io/a224327780/python
 
 WORKDIR /data/python
 
 COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt && python --version
 
-CMD ["python3", "main.py"]
+CMD ["python", "main.py"]
