@@ -1,7 +1,7 @@
 services:
-  labels:
-    app: nodequery
   nodequery:
+    labels:
+      app: nodequery
     build:
       context: .
     scale: 1
