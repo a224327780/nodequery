@@ -46,7 +46,7 @@ DEFAULT_LOGGING: Dict[str, Any] = dict(
             "class": "logging.Formatter",
         },
         "access": {
-            "format": "%(asctime)s[%(filename)s:%(lineno)d][%(host)s]: "
+            "format": "%(asctime)s[%(filename)s:%(lineno)d][%(levelname)s][%(host)s]: "
                       + "%(request)s %(message)s %(status)d %(byte)d",
             "datefmt": "[%Y-%m-%d %H:%M:%S]",
             "class": "logging.Formatter",
