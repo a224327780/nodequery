@@ -1,7 +1,7 @@
 services:
   nodequery:
     labels:
-      app: nodequery
+      "dev.okteto.com/update": rolling
     build:
       context: .
     scale: 1
