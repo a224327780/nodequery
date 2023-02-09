@@ -168,7 +168,7 @@ while true ; do
   load_io=$(prep $(num "$load_io"))
 
   # Build data for post
-  data_post="token=%TOKEN%uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
+  data_post="token=%TOKEN%&uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
 
   curl -s -d "$data_post" "%AGENT_API%"
   sleep 3
