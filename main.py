@@ -62,4 +62,4 @@ async def setup_db(_app: Sanic, loop) -> None:
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)), access_log=True, dev=False, fast=config.PROD)
+    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8080)), access_log=config.DEV, dev=False, fast=config.PROD)
