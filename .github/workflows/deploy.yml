@@ -53,4 +53,4 @@ jobs:
         uses: okteto/pipeline@latest
         with:
           name: nodequery
-          timeout: 5m
+          timeout: 8m
