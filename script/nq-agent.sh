@@ -139,19 +139,19 @@ while true ; do
     idle_gap=$(($idle - ${data[3]}))
     ipv4=${data[6]}
 
-    if [[ $cpu_gap > "0" ]]; then
+    if [[ $cpu_gap -gt "0" ]]; then
       load_cpu=$(((1000 * ($cpu_gap - $idle_gap) / $cpu_gap + 5) / 10))
     fi
 
-    if [[ $io_gap > "0" ]]; then
+    if [[ $io_gap -gt "0" ]]; then
       load_io=$(((1000 * ($io_gap - $idle_gap) / $io_gap + 5) / 10))
     fi
 
-    if [[ $rx > ${data[4]} ]]; then
+    if [[ $rx -gt ${data[4]} ]]; then
       rx_gap=$(($rx - ${data[4]}))
     fi
 
-    if [[ $tx > ${data[5]} ]]; then
+    if [[ $tx -gt ${data[5]} ]]; then
       tx_gap=$(($tx - ${data[5]}))
     fi
   else
@@ -168,7 +168,7 @@ while true ; do
   load_io=$(prep $(num "$load_io"))
 
   # Build data for post
-  data_post="uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
+  data_post="token=%TOKEN%uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
 
   curl -s -d "$data_post" "%AGENT_API%"
   sleep 3

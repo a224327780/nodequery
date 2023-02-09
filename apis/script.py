@@ -21,11 +21,12 @@ async def install_sh(request: Request, aid):
 async def nq_agent(request: Request, aid):
     content_type = 'application/x-shellscript'
 
-    agent_api = request.url_for('api.agent_data', aid=aid)
+    agent_api = request.url_for('api.agent_json')
 
     content = Path('script/nq-agent.sh').read_text()
     content = content.replace('%AGENT_API%', agent_api)
-    
+    content = content.replace('%TOKEN%', aid)
+
     headers = {'accept-ranges': 'bytes'}
     return text(content, content_type=content_type, headers=headers)
 

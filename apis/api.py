@@ -3,6 +3,7 @@ import json
 from urllib import parse
 
 from sanic import Blueprint, Request
+from sanic.exceptions import SanicException
 
 from utils.common import serializer, md5, get_bj_date, format_item
 from utils.db import DB
@@ -36,12 +37,16 @@ async def agent(request: Request):
     return f"curl {request.url_for(f'script.install_sh', aid=_id)} | bash"
 
 
-@bp_api.post('/agent/<aid:str>', name='agent_data')
+@bp_api.post('/agent.json', name='agent_json')
 @serializer()
-async def agent(request: Request, aid):
+async def agent(request: Request):
     message = request.body.decode('utf-8')
     col = DB.get_col()
     data = dict(parse.parse_qsl(message))
+    if 'token' not in data:
+        raise SanicException('missing a required argument: token')
+
+    aid = data.pop('token')
     data['update_date'] = get_bj_date()
     await col.update_one({'_id': aid}, {'$set': data})
     return message
