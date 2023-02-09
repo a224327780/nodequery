@@ -1,5 +1,6 @@
 services:
   nodequery:
+    public: true
     build:
       context: .
     scale: 2
