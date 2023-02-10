@@ -22,6 +22,7 @@ async def agent_list(request: Request, ws):
         data = json.dumps(data)
         await ws.send(data)
         await ws.recv(3.0)
+        await asyncio.sleep(2)
 
 
 @bp_api.post('/agent.add')

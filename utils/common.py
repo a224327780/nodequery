@@ -84,6 +84,17 @@ def fail(message='', data=None, code=1):
 def format_item(item):
     item['ram'] = math.ceil(progress(item['ram_usage'], item['ram_total']))
     item['disk'] = math.ceil(progress(item['disk_usage'], item['disk_total']))
+    item['swap'] = math.ceil(progress(item['swap_usage'], item['swap_total']))
+
+    item['disk_usage_f'] = format_size(item['disk_usage'])
+    item['disk_total_f'] = format_size(item['disk_total'])
+    item['ram_usage_f'] = format_size(item['ram_usage'])
+    item['ram_total_f'] = format_size(item['ram_total'])
+    item['swap_usage_f'] = format_size(item['swap_usage'])
+    item['swap_total_f'] = format_size(item['swap_total'])
+    item['rx_f'] = format_size(item['rx'])
+    item['tx_f'] = format_size(item['tx'])
+
     item['load'] = int(item['load_cpu'])
     # item['load'] = math.ceil(progress(item['load'].split(' ')[0], item['cpu_cores']))
     item['is_online'] = is_online(item['update_date'])
@@ -91,6 +102,8 @@ def format_item(item):
     item['online_day'] = int(int(item['uptime']) / (3600 * 24))
     item['rx_gap'] = format_size(int(item['rx_gap']))
     item['tx_gap'] = format_size(int(item['tx_gap']))
+    ip = item['ipv4'].split('.')
+    item['ipv4'] = f"{ip[0]}.{''.rjust(len(ip[1]), '*')}.{''.rjust(len(ip[2]), '*')}.{ip[3]}"
     return item
 
 
