@@ -61,6 +61,7 @@ def progress(a, b, c=100):
 
 
 def format_size(size_bytes):
+    size_bytes = int(size_bytes)
     if size_bytes == 0:
         return "0B"
     size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
