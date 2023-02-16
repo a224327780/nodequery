@@ -33,7 +33,7 @@ def md5(string: str):
 
 
 def is_online(last_date):
-    return diff_date_seconds(last_date) < 60
+    return diff_date_seconds(last_date) < 120
 
 
 def diff_date_seconds(last_date):

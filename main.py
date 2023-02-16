@@ -12,6 +12,7 @@ from utils import config
 from utils.common import fail, success
 from utils.db import DB
 from utils.log import DEFAULT_LOGGING
+from utils.task import check_online
 
 app = Sanic('nodequery', log_config=DEFAULT_LOGGING)
 app.config.update_config(config)
@@ -21,6 +22,7 @@ app.static('/favicon.ico', 'static/favicon.png')
 app.blueprint(bp_api)
 app.blueprint(bp_script)
 app.blueprint(bp_home)
+app.add_task(check_online())
 
 
 @app.middleware('response')
