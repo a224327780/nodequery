@@ -4,6 +4,7 @@ from urllib import parse
 
 from sanic import Blueprint, Request
 from sanic.exceptions import SanicException
+from sanic.log import logger
 
 from utils.common import serializer, md5, get_bj_date, format_item
 from utils.db import DB
@@ -17,8 +18,11 @@ async def agent_list(request: Request, ws):
     while True:
         data = []
         async for item in col.find():
-            item = format_item(item)
-            data.append(item)
+            try:
+                item = format_item(item)
+                data.append(item)
+            except KeyError:
+                logger.error(item)
         data = json.dumps(data)
         await ws.send(data)
         await ws.recv(3.0)

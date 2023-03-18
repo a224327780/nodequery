@@ -86,7 +86,6 @@ def format_item(item):
     item['ram'] = math.ceil(progress(item['ram_usage'], item['ram_total']))
     item['disk'] = math.ceil(progress(item['disk_usage'], item['disk_total']))
     item['swap'] = math.ceil(progress(item['swap_usage'], item['swap_total']))
-
     item['disk_usage_f'] = format_size(item['disk_usage'])
     item['disk_total_f'] = format_size(item['disk_total'])
     item['ram_usage_f'] = format_size(item['ram_usage'])

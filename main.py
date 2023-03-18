@@ -1,6 +1,8 @@
 import os
 from traceback import format_exc
 
+from aiohttp import ClientSession, TCPConnector
+from aioredis import from_url
 from sanic import Sanic
 from sanic import json as json_response
 from sanic.log import logger
@@ -22,7 +24,9 @@ app.static('/favicon.ico', 'static/favicon.png')
 app.blueprint(bp_api)
 app.blueprint(bp_script)
 app.blueprint(bp_home)
-app.add_task(check_online())
+
+if config.PROD:
+    app.add_task(check_online(app))
 
 
 @app.middleware('response')
@@ -56,11 +60,15 @@ async def catch_anything(request, exception):
 @app.listener('before_server_start')
 async def setup_db(_app: Sanic, loop) -> None:
     DB.init_db(loop, 'db0', 'agent')
+    _app.ctx.redis = await from_url(config.REDIS_URI, decode_responses=True)
+    _app.ctx.request_session = ClientSession(loop=loop, connector=TCPConnector(ssl=False, loop=loop))
 
 
 @app.listener('before_server_stop')
 async def close_db(_app: Sanic, loop) -> None:
     DB.close_db()
+    await _app.ctx.redis.close()
+    await _app.ctx.request_session.close()
 
 
 if __name__ == "__main__":
