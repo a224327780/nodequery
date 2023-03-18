@@ -8,11 +8,6 @@ function prep() {
   echo "$1" | sed -e 's/^ *//g' -e 's/ *$//g' | sed -n '1 p'
 }
 
-# Base64 values
-function base() {
-  echo "$1" | tr -d '\n' | base64 | tr -d '=' | tr -d '\n' | sed 's/\//%2F/g' | sed 's/\+/%2B/g'
-}
-
 # Integer values
 function int() {
   echo ${1/\.*/}
@@ -28,14 +23,10 @@ function num() {
 
 while true ; do
   # System uptime
-  uptime=$(prep $(int "$(cat /proc/uptime | awk '{ print $1 }')"))
+  uptime=$(prep $(int "$(uptime | awk '{print $3}')"))
 
   # Login session count
   sessions=$(prep "$(who | wc -l)")
-
-  # File descriptors
-  file_handles=$(prep $(num "$(cat /proc/sys/fs/file-nr | awk '{ print $1 }')"))
-  file_handles_limit=$(prep $(num "$(cat /proc/sys/fs/file-nr | awk '{ print $3 }')"))
 
   # OS details
   os_kernel=$(prep "$(uname -r)")
@@ -56,26 +47,12 @@ while true ; do
     fi
   fi
 
-  case $(uname -m) in
-  x86_64)
-    os_arch=$(prep "x64")
-    ;;
-  i*86)
-    os_arch=$(prep "x86")
-    ;;
-  *)
-    os_arch=$(prep "$(uname -m)")
-    ;;
-  esac
+  os_arch=$(prep "$(uname -m)")
 
   # CPU details
-  cpu_name=$(prep "$(cat /proc/cpuinfo | grep 'model name' | awk -F\: '{ print $2 }')")
-  cpu_cores=$(prep "$(($(cat /proc/cpuinfo | grep 'model name' | awk -F\: '{ print $2 }' | sed -e :a -e '$!N;s/\n/\|/;ta' | tr -cd \| | wc -c) + 1))")
-
-  if [ -z "$cpu_name" ]; then
-    cpu_name=$(prep "$(cat /proc/cpuinfo | grep 'vendor_id' | awk -F\: '{ print $2 } END { if (!NR) print "N/A" }')")
-    cpu_cores=$(prep "$(($(cat /proc/cpuinfo | grep 'vendor_id' | awk -F\: '{ print $2 }' | sed -e :a -e '$!N;s/\n/\|/;ta' | tr -cd \| | wc -c) + 1))")
-  fi
+  cpu_cores=$(lscpu | awk '/^CPU\(s\)/{print $2}')
+  cpu_name=$(prep "$(lscpu | grep 'Model name' | awk -F ': ' '{print $2}')")
+  cpu_usage=$(top -bn1 | awk '/Cpu/{print $2 + $4}')
 
   cpu_freq=$(prep "$(cat /proc/cpuinfo | grep 'cpu MHz' | awk -F\: '{ print $2 }')")
 
@@ -101,6 +78,9 @@ while true ; do
   disk_total=$(prep $(num "$(($(df -P -B 1 | grep '^/' | awk '{ print $2 }' | sed -e :a -e '$!N;s/\n/+/;ta')))"))
   disk_usage=$(prep $(num "$(($(df -P -B 1 | grep '^/' | awk '{ print $3 }' | sed -e :a -e '$!N;s/\n/+/;ta')))"))
 
+  # 获取进程列表
+  process_list=$(ps aux --sort=-%cpu | head -n 11 | awk '{print $2,$3,$4,$11}' | sed '1d')
+
   # Network interface
   nic=$(prep "$(ip route get 1.1.1.1 | grep dev | awk -F'dev' '{ print $2 }' | awk '{ print $1 }')")
 
@@ -121,54 +101,31 @@ while true ; do
     tx=$(prep $(num "$(ip -s link show $nic | grep '[0-9]*' | grep -v '[A-Za-z]' | awk '{ print $1 }' | sed -n '2 p')"))
   fi
 
-  # Average system load
-  load=$(prep "$(cat /proc/loadavg | awk '{ print $1" "$2" "$3 }')")
-
   # Detailed system load calculation
-  time=$(date +%s)
-  stat=($(cat /proc/stat | head -n1 | sed 's/[^0-9 ]*//g' | sed 's/^ *//'))
-  cpu=$((${stat[0]} + ${stat[1]} + ${stat[2]} + ${stat[3]}))
-  io=$((${stat[3]} + ${stat[4]}))
-  idle=${stat[3]}
-
   if [ -e /etc/nodequery/nq-data.log ]; then
     data=($(cat /etc/nodequery/nq-data.log))
-    interval=$(($time - ${data[0]}))
-    cpu_gap=$(($cpu - ${data[1]}))
-    io_gap=$(($io - ${data[2]}))
-    idle_gap=$(($idle - ${data[3]}))
-    ipv4=${data[6]}
+    ipv4=${data[2]}
 
-    if [[ $cpu_gap -gt "0" ]]; then
-      load_cpu=$(((1000 * ($cpu_gap - $idle_gap) / $cpu_gap + 5) / 10))
+    if [[ $rx -gt ${data[0]} ]]; then
+      rx_gap=$(($rx - ${data[0]}))
     fi
 
-    if [[ $io_gap -gt "0" ]]; then
-      load_io=$(((1000 * ($io_gap - $idle_gap) / $io_gap + 5) / 10))
-    fi
-
-    if [[ $rx -gt ${data[4]} ]]; then
-      rx_gap=$(($rx - ${data[4]}))
-    fi
-
-    if [[ $tx -gt ${data[5]} ]]; then
-      tx_gap=$(($tx - ${data[5]}))
+    if [[ $tx -gt ${data[1]} ]]; then
+      tx_gap=$(($tx - ${data[1]}))
     fi
   else
-    ipv4=$(curl -s https://api.ipify.org/)
+    ipv4=$(curl -s https://ipv4.icanhazip.com/)
   fi
 
   # System load cache
-  echo "$time $cpu $io $idle $rx $tx $ipv4" >/etc/nodequery/nq-data.log
+  echo "$rx $tx $ipv4" >/etc/nodequery/nq-data.log
 
   # Prepare load variables
   rx_gap=$(prep $(num "$rx_gap"))
   tx_gap=$(prep $(num "$tx_gap"))
-  load_cpu=$(prep $(num "$load_cpu"))
-  load_io=$(prep $(num "$load_io"))
 
   # Build data for post
-  data_post="token=%TOKEN%&uptime=$uptime&sessions=$sessions&file_handles=$file_handles&file_handles_limit=$file_handles_limit&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&load=$load&load_cpu=$load_cpu&load_io=$load_io"
+  data_post="token=%TOKEN%&uptime=$uptime&sessions=$sessions&os_kernel=$os_kernel&os_name=$os_name&os_arch=$os_arch&cpu_name=$cpu_name&cpu_cores=$cpu_cores&cpu_freq=$cpu_freq&ram_total=$ram_total&ram_usage=$ram_usage&swap_total=$swap_total&swap_usage=$swap_usage&disk_total=$disk_total&disk_usage=$disk_usage&nic=$nic&ipv4=$ipv4&ipv6=$ipv6&rx=$rx&tx=$tx&rx_gap=$rx_gap&tx_gap=$tx_gap&cpu_usage=$cpu_usage&process_list=$process_list"
 
   curl -s -d "$data_post" "%AGENT_API%"
   sleep 5

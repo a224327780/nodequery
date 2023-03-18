@@ -95,9 +95,7 @@ def format_item(item):
     item['swap_total_f'] = format_size(item['swap_total'])
     item['rx_f'] = format_size(item['rx'])
     item['tx_f'] = format_size(item['tx'])
-
-    item['load'] = int(item['load_cpu'])
-    # item['load'] = math.ceil(progress(item['load'].split(' ')[0], item['cpu_cores']))
+    item['cpu'] = float(item['cpu'])
     item['is_online'] = is_online(item['update_date'])
     item['date'] = format_date(item['update_date'])
     item['online_day'] = int(int(item['uptime']) / (3600 * 24))

@@ -59,7 +59,7 @@ async def setup_db(_app: Sanic, loop) -> None:
 
 
 @app.listener('before_server_stop')
-async def setup_db(_app: Sanic, loop) -> None:
+async def close_db(_app: Sanic, loop) -> None:
     DB.close_db()
 
 

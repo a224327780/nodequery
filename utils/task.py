@@ -16,15 +16,18 @@ async def check_online():
         while True:
             async for item in col.find():
                 name = item['name']
+                message = None
                 if not is_online(item['update_date']):
                     message = f'[{name}] [🔴 Down]'
                     status_map[name] = True
-                    await request_session.post(api, data={'message': message}, timeout=10)
                 elif name in status_map:
                     message = f'[{name}] [✅ Up] '
-                    await request_session.post(api, data={'message': message}, timeout=10)
                     del status_map[name]
-            await asyncio.sleep(60)
+                if message:
+                    async with request_session.post(api, data={'message': message}, timeout=15) as response:
+                        logger.info(await response.text())
+
+            await asyncio.sleep(120)
     except Exception as e:
         logger.error(e)
     finally:
