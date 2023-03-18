@@ -21,8 +21,8 @@ async def agent_list(request: Request, ws):
             try:
                 item = format_item(item)
                 data.append(item)
-            except KeyError:
-                logger.error(item)
+            except KeyError as e:
+                logger.error(f'{e}\n{str(item)}')
         data = json.dumps(data)
         await ws.send(data)
         await ws.recv(3.0)

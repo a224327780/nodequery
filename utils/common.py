@@ -97,7 +97,7 @@ def format_item(item):
     item['cpu_usage'] = float(item['cpu_usage'])
     item['is_online'] = is_online(item['update_date'])
     item['date'] = format_date(item['update_date'])
-    item['online_day'] = int(int(item['uptime']) / (3600 * 24))
+    item['online_day'] = int(item['uptime'])
     item['rx_gap'] = format_size(int(item['rx_gap']))
     item['tx_gap'] = format_size(int(item['tx_gap']))
     ip = item['ipv4'].split('.')
