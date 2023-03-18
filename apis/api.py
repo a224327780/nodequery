@@ -34,7 +34,9 @@ async def agent(request: Request):
     data = await col.find_one({'_id': _id})
     if not data:
         data = {'name': agent_name, '_id': _id, 'create_date': get_bj_date()}
-        await col.insert_one(data)
+        result = await col.insert_one(data)
+        if not result:
+            raise SanicException(f'add agent fail. {str(result)}\n{str(result)}')
     return f"curl {request.url_for(f'script.install_sh', aid=_id)} | bash"
 
 
