@@ -1,6 +1,5 @@
 import asyncio
 
-from aiohttp import ClientSession
 from aioredis import Redis
 from sanic.log import logger
 
@@ -10,7 +9,6 @@ from utils.db import DB
 
 async def check_online(app):
     col = DB.get_col('agent')
-    request_session = ClientSession()
     api = 'https://api01.eu.org/tg/message'
     status_map = {}
     request_session = app.ctx.request_session
